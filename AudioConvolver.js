@@ -30,7 +30,9 @@ class AudioConvolver {
     return (navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
     navigator.userAgent &&
     navigator.userAgent.indexOf('CriOS') == -1 &&
-    navigator.userAgent.indexOf('FxiOS') == -1);
+    navigator.userAgent.indexOf('FxiOS') == -1) || 
+    (/iPad|iPhone|iPod/.test(navigator.platform)) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
   static get BUFFER_LENGTH() {
     return 1000 * 60;

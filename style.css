@@ -107,8 +107,6 @@ section {
 /*   margin-left: 0; */
 }
 
-}
-
 article.left {
   margin-right: var(--padding);
   background-color: #16e1ff;
