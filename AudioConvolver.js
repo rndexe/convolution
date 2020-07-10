@@ -35,21 +35,9 @@ class AudioConvolver {
     return 1000 * 60;
   }
   get _bufferPath() {
-    // return './2020-07-09_04-39.mp3';
-    // return './15sec.wav';
+    // return './assets/2020-07-09_04-39.mp3';
+    // return './assets/15sec.wav';
     return `https://radio.sound.codes/buffer/${formatDate(new Date(this._rounded - (AudioConvolver.BUFFER_LENGTH * this._count--)), 'YYYY-MM-DD_HH-mm')}.mp3`
-  }
-  updateImpulse(idx) {
-    const source = this._source[this._currIdx];
-    if(!this._convolverConnected) {
-      source.disconnect(this._context.destination);
-      this._convolverConnected = true;
-    } else {
-      source.disconnect(this._convolver);
-    }
-    this._convolver.buffer = this._buffers[idx];
-    source.connect(this._convolver);
-    this._convolver.connect(this._context.destination);
   }
   _decodeAudioData(arrayBuffer) {
     return new Promise(res => {
@@ -81,7 +69,7 @@ class AudioConvolver {
     .catch(alert)
   }
   _loadImpulses() {
-    // const PATH_TO_IMPULSE = './impulses/';
+    // const PATH_TO_IMPULSE = './assets/impulses/';
     const PATH_TO_IMPULSE = 'https://radio.sound.codes/signatures/';
     return Promise.all(
       AudioConvolver.IMPULSE_URLS.map(url => 
@@ -89,18 +77,51 @@ class AudioConvolver {
       )
     )
   }
+
+  removeImpulse() {
+    this.impulseIdx = -1;
+    const source = this._source[this._currIdx];
+    this._convolver.disconnect();
+    source.disconnect();
+    source.connect(this._context.destination);
+    this._convolverConnected = false;
+  }
+  updateImpulse(idx) {
+    this.impulseIdx = idx;
+    const source = this._source[this._currIdx];
+    if(!this._convolverConnected) {
+      source.disconnect();
+      this._convolverConnected = true;
+    } else {
+      this._convolver.disconnect();
+      source.disconnect();
+    }
+    this._convolver.buffer = this._buffers[idx];
+    source.connect(this._convolver);
+    this._convolver.connect(this._context.destination);
+  }
   _switchSource(idx) {
     const other = (idx + 1) % 2;
     this._currIdx = other;
+    this._source[idx].disconnect();
     if(this._convolverConnected) {
-      this._source[idx].disconnect(this._convolver);
       this._source[other].connect(this._convolver);
     } else {
-      this._source[idx].disconnect(this._context.destination);
       this._source[other].connect(this._context.destination);
     }
     this._source[other].start();
     this._source[idx] = this._getBufferSource(idx);
+  }
+  _getBufferSource(idx, playOnLoad) {
+    const source = this._context.createBufferSource();
+    source.addEventListener('ended', _ => this._switchSource(idx));
+    this._loadArrayBuffer(this._bufferPath)
+    .then(arrayBuffer => this._decodeAudioData(arrayBuffer))
+    .then(audioBuffer => {
+      source.buffer = audioBuffer;
+      if(playOnLoad) source.start();
+    });
+    return source;
   }
   _createConvolver() {
     this._convolver = this._context.createConvolver();
@@ -132,17 +153,6 @@ class AudioConvolver {
       this._audioSrc.play();
     }
   }
-  _getBufferSource(idx, playOnLoad) {
-    const source = this._context.createBufferSource();
-    source.addEventListener('ended', _ => this._switchSource(idx));
-    this._loadArrayBuffer(this._bufferPath)
-    .then(arrayBuffer => this._decodeAudioData(arrayBuffer))
-    .then(audioBuffer => {
-      source.buffer = audioBuffer;
-      if(playOnLoad) source.start();
-    });
-    return source;
-  }
   _setupBufferedSrcGen() {
     this._now = new Date();
     this._rounded = new Date(Math.floor(this._now.getTime() / AudioConvolver.BUFFER_LENGTH) * AudioConvolver.BUFFER_LENGTH);
@@ -156,6 +166,7 @@ class AudioConvolver {
     this._createConvolver();
   }
   constructor() {
+    this.impulseIdx = -1;
     this._convolverConnected = false;
     this.buffersPromises = this._loadImpulses();
   }

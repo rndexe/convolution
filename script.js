@@ -20,15 +20,21 @@ function showOverlay(e) {
 }
 function handleImpulseSelection(e) {
   if (e.target.tagName !== "INPUT") return;
-  showOverlay(e);
-  audioConvolver.updateImpulse(Number(e.target.value) - 1);
+  const impulseIdx = Number(e.target.value) - 1;
+  if(impulseIdx !== audioConvolver.impulseIdx) {
+    showOverlay(e);
+    audioConvolver.updateImpulse(impulseIdx);
+  } else {
+    e.target.checked = false;
+    audioConvolver.removeImpulse();
+  }
 }
 function init() {
   view.modal.style.display = 'none';
   audioConvolver.setup(view.audioSource);
 }
-view.list.addEventListener('change', handleImpulseSelection);
-view.list.addEventListener('click', showOverlay);
+// view.list.addEventListener('change', handleImpulseSelection);
+view.list.addEventListener('click', handleImpulseSelection);
 view.contentClose.addEventListener('click', function() {
   content.classList.remove('overlay');
 });
