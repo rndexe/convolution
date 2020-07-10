@@ -1,8 +1,9 @@
 class AudioConvolver {
   static get IMPULSE_URLS() {
     return [
+      "arvalam_caves.m4a",
       "aguada_tank.m4a",
-      "bhairvi.m4a",
+      "cabo_de_rama.m4a",
       "bom_jesu.m4a",
       "rivona_caves_1.m4a",
       "rivona_caves_2.m4a",

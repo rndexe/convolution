@@ -45,6 +45,7 @@ font-weight: 100;
   font-size: 0.7rem;
   font-weight: 100;
   font-style:lighter;
+  text-decoration: none;
 }
 .footer2
 {
@@ -56,6 +57,12 @@ font-weight: 100;
 
 a {
   color: #16e1ff;
+  text-decoration: none;
+}
+
+a:hover {
+  background-color: #16e1ff;
+  color: #2a2c2d;
 }
 
 header {
