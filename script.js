@@ -14,9 +14,10 @@ audioConvolver.buffersPromises.then(_ => {
 function showOverlay(e) {
   if (e.target.tagName !== "INPUT") return;
   view.content.classList.add("overlay");
-  // view.content.querySelector('img').src = e.target.parentElement.querySelector('img').src;
-  view.content.querySelector("h4").textContent = e.target.dataset.title;
-  view.content.querySelector("p").textContent = e.target.dataset.text;
+  const label = e.target.nextElementSibling;
+  // view.content.querySelector('img').src = label.parentElement.querySelector('img').src;
+  view.content.querySelector("h4").textContent = label.dataset.title;
+  view.content.querySelector("p").textContent = label.dataset.text;
 }
 function handleImpulseSelection(e) {
   if (e.target.tagName !== "INPUT") return;
