@@ -38,4 +38,13 @@ view.list.addEventListener('click', handleImpulseSelection);
 view.contentClose.addEventListener('click', function() {
   content.classList.remove('overlay');
 });
+
+window.onkeydown = function(e) {
+  var keyCode = e.key || e.keyIdentifier || e.keyCode;
+  if (keyCode == 27 || keyCode == 'Escape') {
+    content.classList.remove('overlay');
+    // change_screen(27); //Run function
+  }
+}
+
 view.playPause.addEventListener('click', init);
