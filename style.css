@@ -215,6 +215,7 @@ li > label {
   position: absolute;
   z-index: -1;
   mix-blend-mode: overlay;
+  filter: hue-rotate(160deg);
 }
 
 li>label {
