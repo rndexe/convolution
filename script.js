@@ -36,6 +36,6 @@ function init() {
 // view.list.addEventListener('change', handleImpulseSelection);
 view.list.addEventListener('click', handleImpulseSelection);
 view.contentClose.addEventListener('click', function() {
-  content.classList.remove('overlay');
+  view.content.classList.remove('overlay');
 });
 view.playPause.addEventListener('click', init);
