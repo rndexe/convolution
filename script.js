@@ -31,7 +31,7 @@ function handleImpulseSelection(e) {
 }
 function init() {
   view.modal.style.display = 'none';
-  audioConvolver.setup(view.audioSource);
+  audioConvolver.setup(view.audioSource, view.content);
 }
 // view.list.addEventListener('change', handleImpulseSelection);
 view.list.addEventListener('click', handleImpulseSelection);

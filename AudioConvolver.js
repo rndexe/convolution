@@ -86,7 +86,7 @@ class AudioConvolver {
     const source = this._source[this._currIdx];
     this._convolver.disconnect();
     source.disconnect();
-    source.connect(this._context.destination);
+    source.connect(this._spectrogram.analyser);
     this._convolverConnected = false;
   }
   updateImpulse(idx) {
@@ -101,7 +101,7 @@ class AudioConvolver {
     }
     this._convolver.buffer = this._buffers[idx];
     source.connect(this._convolver);
-    this._convolver.connect(this._context.destination);
+    this._convolver.connect(this._spectrogram.analyser);
   }
   _switchSource(idx) {
     const other = (idx + 1) % 2;
@@ -110,7 +110,7 @@ class AudioConvolver {
     if(this._convolverConnected) {
       this._source[other].connect(this._convolver);
     } else {
-      this._source[other].connect(this._context.destination);
+      this._source[other].connect(this._spectrogram.analyser);
     }
     this._source[other].start();
     this._source[idx] = this._getBufferSource(idx);
@@ -125,6 +125,10 @@ class AudioConvolver {
       if(playOnLoad) source.start();
     });
     return source;
+  }
+  _createSpectrogram(spectrogramContainer) {
+    this._spectrogram = new Spectrogram(this._context, spectrogramContainer);
+    this._spectrogram.analyser.connect(this._context.destination);
   }
   _createConvolver() {
     this._convolver = this._context.createConvolver();
@@ -146,11 +150,11 @@ class AudioConvolver {
       this._setupBufferedSrcGen();
       this._source[0] = this._getBufferSource(0, true);
       this._source[1] = this._getBufferSource(1);
-      this._source[0].connect(this._context.destination);
+      this._source[0].connect(this._spectrogram.analyser);
     } else {
       this._audioSrc = source;
       this._source[0] = this._context.createMediaElementSource(this._audioSrc);
-      this._source[0].connect(this._context.destination);
+      this._source[0].connect(this._spectrogram.analyser);
       this._audioSrc.src = AudioConvolver.LIVESTREAM_PATH;
       this._audioSrc.muted = false;
       this._audioSrc.play();
@@ -161,8 +165,9 @@ class AudioConvolver {
     this._rounded = new Date(Math.floor(this._now.getTime() / AudioConvolver.BUFFER_LENGTH) * AudioConvolver.BUFFER_LENGTH);
     this._count = 2;
   }
-  async setup(source) {
+  async setup(source, spectrogramContainer) {
     this._createContext();
+    this._createSpectrogram(spectrogramContainer);
     this._createSource(source);
     this._buffers = await this.buffersPromises
     .then(buffers => this._decodeBuffersArray(buffers));

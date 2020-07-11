@@ -211,7 +211,11 @@ li > label {
   overflow: auto;
 }
 
-
+#content > canvas {
+  position: absolute;
+  z-index: -1;
+  mix-blend-mode: overlay;
+}
 
 li>label {
   cursor: pointer;
