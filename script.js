@@ -42,8 +42,7 @@ view.contentClose.addEventListener('click', function() {
 window.onkeydown = function(e) {
   var keyCode = e.key || e.keyIdentifier || e.keyCode;
   if (keyCode == 27 || keyCode == 'Escape') {
-    content.classList.remove('overlay');
-    // change_screen(27); //Run function
+    view.content.classList.remove('overlay');
   }
 }
 
