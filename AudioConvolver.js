@@ -72,8 +72,8 @@ class AudioConvolver {
     .catch(alert)
   }
   _loadImpulses() {
-    // const PATH_TO_IMPULSE = './assets/impulses/';
-    const PATH_TO_IMPULSE = 'https://radio.sound.codes/signatures/';
+    const PATH_TO_IMPULSE = './assets/';
+    //const PATH_TO_IMPULSE = 'https://radio.sound.codes/signatures/';
     return Promise.all(
       AudioConvolver.IMPULSE_URLS.map(url => 
         this._loadArrayBuffer(PATH_TO_IMPULSE + url)
@@ -153,11 +153,14 @@ class AudioConvolver {
       this._source[0].connect(this._spectrogram.analyser);
     } else {
       this._audioSrc = source;
-      this._source[0] = this._context.createMediaElementSource(this._audioSrc);
-      this._source[0].connect(this._spectrogram.analyser);
-      this._audioSrc.src = AudioConvolver.LIVESTREAM_PATH;
-      this._audioSrc.muted = false;
-      this._audioSrc.play();
+      navigator.mediaDevices.getUserMedia({video: false, audio: true}).then( stream => {
+        this._source[0] = this._context.createMediaElementSource(this._audioSrc);
+        this._source[0].connect(this._spectrogram.analyser);
+        this._audioSrc.srcObject = stream;
+        this._audioSrc.play();
+      }).catch( err => {
+        console.log("Get user media error:" + err)
+      });
     }
   }
   _setupBufferedSrcGen() {

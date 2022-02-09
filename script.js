@@ -1,5 +1,6 @@
 var view = {
   list: document.querySelector('ul'),
+  inputs: document.querySelectorAll('input'),
   content: document.querySelector('#content'),
   contentClose: document.querySelector('#content > button'),
   modal: document.body.querySelector('aside'),
@@ -38,6 +39,10 @@ function init() {
 view.list.addEventListener('click', handleImpulseSelection);
 view.contentClose.addEventListener('click', function() {
   view.content.classList.remove('overlay');
+  for (var input of view.inputs) {
+    input.checked = false;
+  }
+  audioConvolver.removeImpulse();
 });
 
 window.onkeydown = function(e) {
