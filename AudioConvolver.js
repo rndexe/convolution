@@ -153,11 +153,9 @@ class AudioConvolver {
       this._source[0].connect(this._spectrogram.analyser);
     } else {
       this._audioSrc = source;
-      navigator.mediaDevices.getUserMedia({video: false, audio: true}).then( stream => {
-        this._source[0] = this._context.createMediaElementSource(this._audioSrc);
+      navigator.mediaDevices.getUserMedia({audio: true}).then( stream => {
+        this._source[0] = this._context.createMediaStreamSource(stream);
         this._source[0].connect(this._spectrogram.analyser);
-        this._audioSrc.srcObject = stream;
-        this._audioSrc.play();
       }).catch( err => {
         console.log("Get user media error:" + err)
       });
