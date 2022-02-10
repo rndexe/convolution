@@ -23,24 +23,8 @@ class AudioConvolver {
       "st_cajetan.m4a",
     ];
   }
-  static get LIVESTREAM_PATH() {
-    return 'https://cast.sound.codes/radio/8000/radio.mp3';
-  }
-  static get IS_SAFARI() {
-    return (navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
-    navigator.userAgent &&
-    navigator.userAgent.indexOf('CriOS') == -1 &&
-    navigator.userAgent.indexOf('FxiOS') == -1) || 
-    (/iPad|iPhone|iPod/.test(navigator.platform)) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  }
   static get BUFFER_LENGTH() {
     return 1000 * 60;
-  }
-  get _bufferPath() {
-    // return './assets/2020-07-09_04-39.mp3';
-    // return './assets/15sec.wav';
-    return `https://radio.sound.codes/buffer/${formatDate(new Date(this._rounded - (AudioConvolver.BUFFER_LENGTH * this._count--)), 'YYYY-MM-DD_HH-mm')}.mp3`
   }
   _decodeAudioData(arrayBuffer) {
     return new Promise(res => {
@@ -146,12 +130,6 @@ class AudioConvolver {
   _createSource(source) {
     this._currIdx = 0;
     this._source = [];
-    if(AudioConvolver.IS_SAFARI) {
-      this._setupBufferedSrcGen();
-      this._source[0] = this._getBufferSource(0, true);
-      this._source[1] = this._getBufferSource(1);
-      this._source[0].connect(this._spectrogram.analyser);
-    } else {
       this._audioSrc = source;
       navigator.mediaDevices.getUserMedia({audio: true}).then( stream => {
         this._source[0] = this._context.createMediaStreamSource(stream);
@@ -159,7 +137,6 @@ class AudioConvolver {
       }).catch( err => {
         console.log("Get user media error:" + err)
       });
-    }
   }
   _setupBufferedSrcGen() {
     this._now = new Date();
