@@ -23,9 +23,6 @@ class AudioConvolver {
       "st_cajetan.m4a",
     ];
   }
-  static get BUFFER_LENGTH() {
-    return 1000 * 60;
-  }
   _decodeAudioData(arrayBuffer) {
     return new Promise(res => {
       this._context.decodeAudioData(
@@ -67,7 +64,7 @@ class AudioConvolver {
 
   removeImpulse() {
     this.impulseIdx = -1;
-    const source = this._source[this._currIdx];
+    const source = this._sourceMic;
     this._convolver.disconnect();
     source.disconnect();
     source.connect(this._spectrogram.analyser);
@@ -75,7 +72,7 @@ class AudioConvolver {
   }
   updateImpulse(idx) {
     this.impulseIdx = idx;
-    const source = this._source[this._currIdx];
+    const source = this._sourceMic;
     if(!this._convolverConnected) {
       source.disconnect();
       this._convolverConnected = true;
@@ -86,29 +83,6 @@ class AudioConvolver {
     this._convolver.buffer = this._buffers[idx];
     source.connect(this._convolver);
     this._convolver.connect(this._spectrogram.analyser);
-  }
-  _switchSource(idx) {
-    const other = (idx + 1) % 2;
-    this._currIdx = other;
-    this._source[idx].disconnect();
-    if(this._convolverConnected) {
-      this._source[other].connect(this._convolver);
-    } else {
-      this._source[other].connect(this._spectrogram.analyser);
-    }
-    this._source[other].start();
-    this._source[idx] = this._getBufferSource(idx);
-  }
-  _getBufferSource(idx, playOnLoad) {
-    const source = this._context.createBufferSource();
-    source.addEventListener('ended', _ => this._switchSource(idx));
-    this._loadArrayBuffer(this._bufferPath)
-    .then(arrayBuffer => this._decodeAudioData(arrayBuffer))
-    .then(audioBuffer => {
-      source.buffer = audioBuffer;
-      if(playOnLoad) source.start();
-    });
-    return source;
   }
   _createSpectrogram(spectrogramContainer) {
     this._spectrogram = new Spectrogram(this._context, spectrogramContainer);
@@ -127,26 +101,18 @@ class AudioConvolver {
       this._context.resume();
     }
   }
-  _createSource(source) {
-    this._currIdx = 0;
-    this._source = [];
-      this._audioSrc = source;
+  _createSource() {
       navigator.mediaDevices.getUserMedia({audio: true}).then( stream => {
-        this._source[0] = this._context.createMediaStreamSource(stream);
-        this._source[0].connect(this._spectrogram.analyser);
+        this._sourceMic = this._context.createMediaStreamSource(stream);
+        this._sourceMic.connect(this._spectrogram.analyser);
       }).catch( err => {
-        console.log("Get user media error:" + err)
+        console.error("getUserMedia error: " + err.message)
       });
-  }
-  _setupBufferedSrcGen() {
-    this._now = new Date();
-    this._rounded = new Date(Math.floor(this._now.getTime() / AudioConvolver.BUFFER_LENGTH) * AudioConvolver.BUFFER_LENGTH);
-    this._count = 2;
   }
   async setup(source, spectrogramContainer) {
     this._createContext();
     this._createSpectrogram(spectrogramContainer);
-    this._createSource(source);
+    this._createSource();
     this._buffers = await this.buffersPromises
     .then(buffers => this._decodeBuffersArray(buffers));
     this._createConvolver();
